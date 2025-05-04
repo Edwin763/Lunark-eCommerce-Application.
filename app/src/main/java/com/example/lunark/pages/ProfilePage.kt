@@ -43,7 +43,7 @@ fun ProfilePage(
 ) {
     val profileState by viewModel.profileState.collectAsState()
     var showSignOutDialog by remember { mutableStateOf(false) }
-
+var orderId by remember { mutableStateOf(value = "") }
 
     // Show error message if any
     LaunchedEffect(profileState.error) {
@@ -59,7 +59,7 @@ fun ProfilePage(
             TopAppBar(
                 title = { Text("My Profile") },
                 actions = {
-                    IconButton(onClick = navigateToSettings) {
+                    IconButton(onClick = {navController.navigate("settings")}) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
                 }
@@ -87,7 +87,7 @@ fun ProfilePage(
                         firstName = profileState.user?.firstName ?: "",
                         lastName = profileState.user?.lastName ?: "",
                         email = profileState.user?.email ?: "",
-                        onEditClick = navigateToEditProfile
+                        onEditClick = {navController.navigate("edit-profile")}
                     )
                 }
 
@@ -110,7 +110,10 @@ fun ProfilePage(
                             items(profileState.orders) { order ->
                                 OrderCard(
                                     order = order,
-                                    onClick = { navigateToOrderDetails(order.id) }
+                                    onClick = {
+
+                                        navController.navigate("order-details/$orderId")
+                                         }
                                 )
                             }
                         }
@@ -118,7 +121,8 @@ fun ProfilePage(
 
                     item {
                         TextButton(
-                            onClick = navigateToAllOrders,
+
+                            onClick = {navController.navigate("orders")},
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("View All Orders")
@@ -154,7 +158,12 @@ fun ProfilePage(
                     items(profileState.addresses) { address ->
                         AddressCard(
                             address = address,
-                            onClick = navigateToAddresses
+
+                            onClick = {
+                                navController.navigate("addresses")
+
+
+                            }
                         )
                     }
                 } else {
@@ -163,7 +172,10 @@ fun ProfilePage(
                             icon = Icons.Outlined.LocationOn,
                             message = "You haven't saved any addresses yet",
                             buttonText = "Add Address",
-                            onClick = navigateToAddresses
+                            onClick = {
+                                navController.navigate("addresses")
+
+                            }
                         )
                     }
                 }
@@ -177,10 +189,23 @@ fun ProfilePage(
                     )
 
                     SettingsMenuCard(
-                        navigateToEditProfile = navigateToEditProfile,
-                        navigateToAddresses = navigateToAddresses,
-                        navigateToSettings = navigateToSettings,
-                        navigateToHelp = navigateToHelp,
+                        navigateToEditProfile = {
+                            navController.navigate("edit-profile")
+
+                        },
+                        navigateToAddresses = {
+                            navController.navigate("addresses")
+
+
+                        },
+                        navigateToSettings = {
+                            navController.navigate("settings")
+
+                        },
+                        navigateToHelp = {
+                            navController.navigate("help")
+
+                        },
                         onSignOutClick = { showSignOutDialog = true }
                     )
                 }
@@ -205,6 +230,7 @@ fun ProfilePage(
                         viewModel.signOut()
                         onSignOut()
                         showSignOutDialog = false
+                        navController.navigate("login")
                     }
                 ) {
                     Text("Sign Out")
@@ -212,7 +238,9 @@ fun ProfilePage(
             },
             dismissButton = {
                 OutlinedButton(
-                    onClick = { showSignOutDialog = false }
+                    onClick = { showSignOutDialog = false
+                    navController.navigate("profile")}
+
                 ) {
                     Text("Cancel")
                 }
@@ -277,7 +305,7 @@ fun ProfileHeader(
             }
 
             // Edit Button
-            IconButton(onClick = onEditClick) {
+            IconButton(onClick = {navController.navigate("edit-profile")}) {
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Edit Profile"
@@ -292,7 +320,10 @@ fun OrderCard(order: Order, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .width(260.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = {
+                navController.navigate("OrderPage")
+
+            }),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -376,7 +407,10 @@ fun AddressCard(address: Address, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = {
+                navController.navigate("addresses")
+
+            }),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -430,7 +464,10 @@ fun AddressCard(address: Address, onClick: () -> Unit) {
                 )
             }
 
-            IconButton(onClick = onClick) {
+            IconButton(onClick = {
+                navController.navigate("addresses")
+
+            }) {
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Edit Address"
@@ -506,7 +543,7 @@ fun SettingsMenuCard(
             SettingsMenuItem(
                 icon = Icons.Default.Person,
                 title = "Edit Profile",
-                onClick = navigateToEditProfile
+                onClick = {navController.navigate("edit-profile")}
             )
 
             Divider(modifier = Modifier.padding(start = 56.dp))
@@ -514,7 +551,7 @@ fun SettingsMenuCard(
             SettingsMenuItem(
                 icon = Icons.Default.LocationOn,
                 title = "Manage Addresses",
-                onClick = navigateToAddresses
+                onClick = {navController.navigate("addresses")}
             )
 
             Divider(modifier = Modifier.padding(start = 56.dp))
@@ -530,7 +567,7 @@ fun SettingsMenuCard(
             SettingsMenuItem(
                 icon = Icons.Default.Notifications,
                 title = "Notification Preferences",
-                onClick = navigateToSettings
+                onClick = {navController.navigate("settings")}
             )
 
             Divider(modifier = Modifier.padding(start = 56.dp))
@@ -538,7 +575,7 @@ fun SettingsMenuCard(
             SettingsMenuItem(
                 icon = Icons.Default.Help,
                 title = "Help & Support",
-                onClick = navigateToHelp
+                onClick = {navController.navigate("help")}
             )
 
             Divider(modifier = Modifier.padding(start = 56.dp))
@@ -546,7 +583,7 @@ fun SettingsMenuCard(
             SettingsMenuItem(
                 icon = Icons.Default.ExitToApp,
                 title = "Sign Out",
-                onClick = onSignOutClick,
+                onClick = {navController.navigate("auth")},
                 tint = MaterialTheme.colorScheme.error
             )
         }
@@ -563,7 +600,7 @@ fun SettingsMenuItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClick = {navController.navigate("settings")})
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
